@@ -20,7 +20,7 @@ print(original_title)
 
 app = Flask(__name__)
 cors = CORS(app, origins='*')
-apiKey = '47d3a098d06ebffba749d6fe35c2b95e'
+# apiKey = ''
 
 @app.route("/movies", methods=["POST", "GET"])
 def movies():
