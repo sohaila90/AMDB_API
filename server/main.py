@@ -56,5 +56,5 @@ def movies():
     return jsonify({"message": "Backend fungerer!"})
 
 if __name__ == "__main__":
-    print("TMDB key found:", os.getenv("TMDB_API_KEY"))
+    print("TMDB key found:")
     app.run(debug=True, port=8080)
