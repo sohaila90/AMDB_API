@@ -16,13 +16,6 @@ headers = {
     "Authorization": f"Bearer {TMDB_API_KEY}"
  }
 
-
-headers = {
-    "accept": "application/json",
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0N2QzYTA5OGQwNmViZmZiYTc0OWQ2ZmUzNWMyYjk1ZSIsIm5iZiI6MTc2MDY4NjIwNi4wMjQ5OTk5LCJzdWIiOiI2OGYxZjA3ZWRkMGNlMmM3YzM3NGY2OTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.ZOd43cZenLcI1ElxSiuTe99LrSBcDOiVEd5hYTMdUqk"
- }
-
-
 params = {
     "include_adult": "false",
     "include_video": "false",
