@@ -1,15 +1,40 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests
+import os
+from dotenv import load_dotenv
 
-url = "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=ar-EGY&page=1&region=Egypt&sort_by=popularity.desc&with_origin_country=EG&with_original_language=en"
+load_dotenv()
+print("TMDB key found:", os.getenv("TMDB_API_KEY"))
+
+url = "https://api.themoviedb.org/3/discover/movie"
+
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+
+headers = {
+    "accept": "application/json",
+    "Authorization": f"Bearer {TMDB_API_KEY}"
+ }
+
 
 headers = {
     "accept": "application/json",
     "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0N2QzYTA5OGQwNmViZmZiYTc0OWQ2ZmUzNWMyYjk1ZSIsIm5iZiI6MTc2MDY4NjIwNi4wMjQ5OTk5LCJzdWIiOiI2OGYxZjA3ZWRkMGNlMmM3YzM3NGY2OTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.ZOd43cZenLcI1ElxSiuTe99LrSBcDOiVEd5hYTMdUqk"
  }
 
-response = requests.get(url, headers=headers)
+
+params = {
+    "include_adult": "false",
+    "include_video": "false",
+    "language": "ar-EGY",
+    "page": 1,
+    "region": "EG",
+    "sort_by": "popularity.desc",
+    "with_origin_country": "EG",
+    "with_original_language": "en"
+}
+
+response = requests.get(url, headers=headers, params=params)
 
 print(response.text)
 print(response.json)
@@ -19,21 +44,24 @@ original_title = response.json()['results'][2]['original_title']
 print(original_title)
 
 app = Flask(__name__)
-cors = CORS(app, origins='*')
-# apiKey = ''
+CORS(app, resources={r"/*": {"origins": '*'}})
+apiKey = '47d3a098d06ebffba749d6fe35c2b95e'
 
 @app.route("/movies", methods=["POST", "GET"])
 def movies():
     if request.method == "POST":
-        movie = request.get_json()
-        if movie and "movie" in movie: 
-            response = requests.get(f'https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=ar-EGY&page=1&sort_by=popularity.desc&with_origin_country=EG&with_original_language=ar{movie}&appid={apiKey}&units=metrics').json()
-            if response:
-                return jsonify(response)
-        else:
-            return jsonify("Invalid data recived"), 400
+        data = request.get_json()
+        movie_title = data.get("movie")
 
-    return jsonify("Funker du flasky?")
+        if not movie_title or not movie_title.strip():
+            return jsonify({"error": "Missing movie title"}), 400
+        
+        response = requests.get("https://api.themoviedb.org/3/search/movie", headers=headers, params={"query": movie_title, "language": "ar-EGY"}).json()
+            
+        return jsonify(response)
+        
+    return jsonify({"message": "Backend fungerer!"})
 
 if __name__ == "__main__":
+    print("TMDB key found:", os.getenv("TMDB_API_KEY"))
     app.run(debug=True, port=8080)
