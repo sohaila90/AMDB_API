@@ -32,6 +32,7 @@ def movies():
     if cached:
         return jsonify(cached)
     
+    
     #Ingen cache? Da henter vi alle sidene fra TMDb
     all_results = [] #alle resultatene blir lagret her
     page = 1 #starter på side 1
@@ -41,6 +42,7 @@ def movies():
     print("Fetching page 1...")
     start_time = time.time()
     
+
     # Start med å hente den første siden
     # For nå: uansett GET/POST -> returner Egypt-liste
     r = requests.get(
@@ -82,6 +84,27 @@ def movies():
     #oppdater cache
     save_cache(all_results)
     return jsonify({"results": all_results, "total_results": len(all_results)}), r.status_code #returner resultatene fra alle sidene
+
+@app.route("/movies/newest", methods=["GET"])
+def newest_movie():
+    #her kopierer vi parametere
+    params = DISCOVER_PARAMS.copy()
+    #endrer sortering til nyeste først
+    params["sort_by"] = "release_date.desc"
+    #hent data fra tmdb med reqyestget
+    r = requests.get("https://api.themoviedb.org/3/discover/movie",
+    params=params,
+    headers=headers,
+    )
+    #konverter svar med json
+    data = r.json()
+    #hent ut listen
+    results = data["results"]
+    #ta de 3 første filmene
+    newest_three = results[:3]
+    #retuner med json
+    return jsonify({"results": newest_three})
+    
 
 
 if __name__ == "__main__":
