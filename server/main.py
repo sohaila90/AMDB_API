@@ -90,7 +90,7 @@ def newest_movie():
     #her kopierer vi parametere
     params = DISCOVER_PARAMS.copy()
     #endrer sortering til nyeste først
-    params["sort_by"] = "release_date.desc"
+    params["sort_by"] = "primary_release_date.desc"
     #hent data fra tmdb med reqyestget
     r = requests.get("https://api.themoviedb.org/3/discover/movie",
     params=params,
