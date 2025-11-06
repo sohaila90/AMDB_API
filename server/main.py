@@ -105,7 +105,45 @@ def newest_movie():
     #retuner med json
     return jsonify({"results": newest_three})
     
+@app.route("/movies/popular", methods=["GET"])
+def popular_movie():
+        params = DISCOVER_PARAMS.copy()
+        params["sort_by"] = "popularity.desc"
+        params["page"] = 1 #start på side 1
+        
+        all_results = [] #her lagrer vi alt vi henter
 
+        #hent første side
+        r = requests.get(
+             "https://api.themoviedb.org/3/discover/movie",
+        params=params,
+        headers=headers                 
+        )
+        data = r.json()
+        
+        #finn ut hvor mange sider som finnes
+        total_pages = data.get("total_pages", 1)
+        
+        #legg til filmene fra første side
+        all_results.extend(data.get("results", []))
+
+        for page in range(2, min(total_pages + 1, 4)):
+             params["page"] = page
+             r = requests.get(
+                  "https://api.themoviedb.org/3/discover/movie",
+                  params=params,
+                  headers=headers
+             )
+             if r.status_code != 200:
+                  break
+             data = r.json()
+             all_results.extend(data.get("results", []))
+             time.sleep(0.25) #unngå spamme apiet for fort
+
+             top_movies = all_results[:11]
+
+             #send som json til fronend
+        return jsonify({"results": top_movies}), 200
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
