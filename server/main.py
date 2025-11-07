@@ -140,7 +140,7 @@ def popular_movie():
              all_results.extend(data.get("results", []))
              time.sleep(0.25) #unngå spamme apiet for fort
 
-             top_movies = all_results[:11]
+             top_movies = all_results[:20]
 
              #send som json til fronend
         return jsonify({"results": top_movies}), 200
