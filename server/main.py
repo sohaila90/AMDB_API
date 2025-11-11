@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests, os
 import time
+import random
 from cache import load_cache, save_cache
 from dotenv import load_dotenv
 
@@ -144,6 +145,37 @@ def popular_movie():
 
              #send som json til fronend
         return jsonify({"results": top_movies}), 200
+
+
+@app.route("/movies/random", methods=["GET"])
+def random_movie():
+    #FIKSE DETTE SENERE-SPØR STIAN
+    # cached = load_cache()
+    # if cached:
+    #     return jsonify(cached)
+
+    params = DISCOVER_PARAMS.copy()
+    params["sort_by"] = "vote_count.asc" 
+    params["page"] = 1
+
+    #tom kurv ingen filmer ennå
+    random_movies_list = []
+
+    r = requests.get("https://api.themoviedb.org/3/discover/movie",
+    params=params,
+    headers=headers
+    )
+    data = r.json()
+    #her får jeg en eske med fimer, det er som en liten liste med filmer, [film1, film2]
+    total_results = data.get("total_results", 1)
+    #når vi bruker extend heller man ut alle filmene en etter en i kurven
+    random_movies_list.extend(data.get("results", []))
+    save_cache(random_movies_list)
+    print(random.choices(random_movies_list, k=1))
+    random.choices(random_movies_list, k=11)
+    random_eleven = (random.choices(random_movies_list, k=11))
+
+    return jsonify(random_eleven)
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
