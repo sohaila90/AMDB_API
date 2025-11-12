@@ -167,7 +167,7 @@ def random_movie():
     )
     data = r.json()
     #her får jeg en eske med fimer, det er som en liten liste med filmer, [film1, film2]
-    total_results = data.get("total_results", 1)
+    #total_results = data.get("total_results", 2)
     #når vi bruker extend heller man ut alle filmene en etter en i kurven
     random_movies_list.extend(data.get("results", []))
     save_cache(random_movies_list)
