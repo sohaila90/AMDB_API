@@ -171,9 +171,9 @@ def random_movie():
     #når vi bruker extend heller man ut alle filmene en etter en i kurven
     random_movies_list.extend(data.get("results", []))
     save_cache(random_movies_list)
-    print(random.choices(random_movies_list, k=1))
-    random.choices(random_movies_list, k=11)
-    random_eleven = (random.choices(random_movies_list, k=11))
+    print(random.sample(random_movies_list, k=1))
+    random.sample(random_movies_list, k=11)
+    random_eleven = (random.sample(random_movies_list, k=11))
 
     return jsonify(random_eleven)
 
