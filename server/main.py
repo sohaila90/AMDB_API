@@ -177,5 +177,28 @@ def random_movie():
 
     return jsonify(random_eleven)
 
+@app.route("/movies/highest-rated", methods=["GET"])
+def highest_rated():
+     params = DISCOVER_PARAMS.copy()
+     params["sort_by"] = "vote_average.desc"
+     params["page"] = 1
+
+     highest_rated_list = []
+    
+
+     r = requests.get("https://api.themoviedb.org/3/discover/movie",
+     params=params,
+     headers=headers
+     )
+     data = r.json()
+     highest_rated_list.extend(data.get("results", []))
+     over_eight = []
+     for film in highest_rated_list:
+        if film["vote_average"] >= 8:
+                over_eight.append(film)
+        
+        print(over_eight)
+     return jsonify(over_eight)
+
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
