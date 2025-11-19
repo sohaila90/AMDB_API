@@ -197,7 +197,7 @@ def highest_rated():
         if film["vote_average"] >= 8:
                 over_eight.append(film)
         
-        print(over_eight)
+        #print(over_eight)
      return jsonify(over_eight)
 
 if __name__ == "__main__":
