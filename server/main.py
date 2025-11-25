@@ -1,10 +1,13 @@
 from flask import Flask, jsonify, request
+from extensions import db
+from models import User
 from flask_cors import CORS
 import requests, os
 import time
 import random
 from cache import load_cache, save_cache
 from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash
 
 load_dotenv()
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
@@ -25,6 +28,12 @@ DISCOVER_PARAMS = {
 }
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = "hemmeligblabla"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db.init_app(app)
+
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route("/movies", methods=["GET", "POST"])
@@ -199,6 +208,41 @@ def highest_rated():
         
         #print(over_eight)
      return jsonify(over_eight)
+
+
+
+@app.route("/register", methods=["POST"])
+def register():
+     data = request.get_json()
+     username = data.get("username")
+     password = data.get("password")
+
+     #Sjekk om brukernavn finnes
+     existing_user = User.query.filter_by(username=username).first()
+     if existing_user:
+          return{"message": "Username already exists"}, 400
+     
+     #Lag hash av password
+     hashed_pw = generate_password_hash(password)
+
+     #Lag user
+     new_user = User(username=username, password=hashed_pw)
+
+     #Lagre i DB
+     db.session.add(new_user)
+     db.session.commit()
+
+     return {"message": "User created successfully"}, 201
+
+@app.route("/users", methods=["GET"])
+def get_users():
+     users = User.query.all()
+     return jsonify([
+{"id": u.id, "username": u.username}
+for u in users
+     ])
+
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
