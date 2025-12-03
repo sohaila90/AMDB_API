@@ -8,6 +8,8 @@ import random
 from cache import load_cache, save_cache
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
+from datetime import datetime
 
 load_dotenv()
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
@@ -217,16 +219,23 @@ def register():
      username = data.get("username")
      password = data.get("password")
 
+     raw_dob = data.get("dob")
+     dob = datetime.strptime(raw_dob, "%Y-%m-%d").date()
+
+
      #Sjekk om brukernavn finnes
      existing_user = User.query.filter_by(username=username).first()
      if existing_user:
           return{"message": "Username already exists"}, 400
      
+     #Sjekk at DoB er innafor
+  
+     
      #Lag hash av password
      hashed_pw = generate_password_hash(password)
 
      #Lag user
-     new_user = User(username=username, password=hashed_pw)
+     new_user = User(username=username, password=hashed_pw, dob=dob)
 
      #Lagre i DB
      db.session.add(new_user)
@@ -243,6 +252,26 @@ for u in users
      ])
 
 
+@app.route("/login", methods=["POST"])
+def login():
+     data = request.get_json()
+     username = data.get("username")
+     password = data.get("password")
+     print(username, password)
+     
+     login_user = User.query.filter_by(username=username).first()
+     if login_user == None:
+        return {"message": "Failed to login"}, 400
+     if check_password_hash(login_user.password, password):
+          return {"message": "Success"}
+     else:
+          return {"message": "Wrong password"}
+     
+# generate_password_hash(password, method='scrypt', salt_length=16)
+     
+
+with app.app_context():
+     db.create_all()
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
